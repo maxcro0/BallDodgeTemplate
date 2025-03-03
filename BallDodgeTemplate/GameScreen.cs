@@ -1,12 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace BallDodgeTemplate
@@ -16,9 +10,13 @@ namespace BallDodgeTemplate
         public static int screenWidth;
         public static int screenHeight;
 
+        public static int lives = 3;
+        public static int points = 0;
+
         bool leftArrowDown, rightArrowDown, upArrowDown, downArrowDown;
-        
+
         Ball chaseBall;
+        List<Ball> chaserBalls = new List<Ball>();
         List<Ball> balls = new List<Ball>();
         Player hero;
 
@@ -31,27 +29,42 @@ namespace BallDodgeTemplate
             InitializeComponent();
 
             screenWidth = this.Width;
-            screenHeight = this.Height; 
+            screenHeight = this.Height;
 
             InitializeGame();
         }
-        
+
+        public void CreateBall(string type)
+        {
+            int x = randGen.Next(20, this.Width - 50);
+            int y = randGen.Next(20, this.Height - 50);
+            if (type == "enemy")
+            {
+                Ball b = new Ball(x, y, 8, 8);
+                balls.Add(b); 
+            }
+
+            if (type == "friend")
+            {
+                Ball b = new Ball(x, y, 8, 8);
+                chaserBalls.Add(b); 
+   
+            }
+        }
+
         public void InitializeGame()
         {
-            hero = new Player();    
+            hero = new Player();
 
             int x = randGen.Next(20, this.Width - 50);
             int y = randGen.Next(20, this.Height - 50);
 
             chaseBall = new Ball(x, y, 8, 8);
+            chaserBalls.Add(chaseBall);
 
             for (int i = 0; i < 5; i++)
             {
-                x = randGen.Next(20, this.Width - 50);
-                y = randGen.Next(20, this.Height - 50);
-
-                Ball b = new Ball(x, y, 8, 8);
-                balls.Add(b);
+                CreateBall("Enemy");
             }
         }
 
@@ -76,6 +89,7 @@ namespace BallDodgeTemplate
 
         private void GameScreen_KeyUp(object sender, KeyEventArgs e)
         {
+
             switch (e.KeyCode)
             {
                 case Keys.Left:
@@ -95,7 +109,48 @@ namespace BallDodgeTemplate
 
         private void gameTimer_Tick(object sender, EventArgs e)
         {
+            if (lives <= 0)
+            {
+                gameTimer.Stop();
+            }
+            #region Move code
+            foreach (Ball b in balls)
+            {
+                if (hero.Collision(chaseBall))
+                {
+                    lives++;
+                    points++;
+                }
+
+                if (hero.Collision(b))
+                {
+                    lives--;
+                }
+            }
+
+
+
             chaseBall.Move();
+
+            if (rightArrowDown == true)
+            {
+                hero.Move("right");
+            }
+
+            else if (leftArrowDown == true)
+            {
+                hero.Move("left");
+            }
+
+            else if (upArrowDown == true)
+            {
+                hero.Move("up");
+            }
+
+            else if (downArrowDown == true)
+            {
+                hero.Move("down");
+            }
 
             foreach (Ball b in balls)
             {
@@ -103,21 +158,31 @@ namespace BallDodgeTemplate
             }
 
             Refresh();
+            #endregion
+
+            Rectangle heroRec = new Rectangle(hero.x, hero.y, hero.width, hero.height);
+            Rectangle chaseRec = new Rectangle(chaseBall.x, chaseBall.y, chaseBall.size, chaseBall.size);
+
+
         }
 
         private void GameScreen_Paint(object sender, PaintEventArgs e)
         {
+
+            liveLabel.Text = $"Lives: {lives}";
             //chaseball
             e.Graphics.FillEllipse(greenBrush, chaseBall.x, chaseBall.y, chaseBall.size, chaseBall.size);
 
             //balls to avoid
-            foreach(Ball b in balls)
+            foreach (Ball b in balls)
             {
                 e.Graphics.FillEllipse(redBrush, b.x, b.y, b.size, b.size);
             }
 
             //hero
             e.Graphics.FillRectangle(greenBrush, hero.x, hero.y, hero.width, hero.height);
+
+
         }
     }
 }
