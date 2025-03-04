@@ -31,6 +31,7 @@
             this.components = new System.ComponentModel.Container();
             this.gameTimer = new System.Windows.Forms.Timer(this.components);
             this.liveLabel = new System.Windows.Forms.Label();
+            this.pointLabel = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // gameTimer
@@ -48,11 +49,21 @@
             this.liveLabel.TabIndex = 1;
             this.liveLabel.Text = "label2";
             // 
+            // pointLabel
+            // 
+            this.pointLabel.AutoSize = true;
+            this.pointLabel.Location = new System.Drawing.Point(752, 39);
+            this.pointLabel.Name = "pointLabel";
+            this.pointLabel.Size = new System.Drawing.Size(51, 20);
+            this.pointLabel.TabIndex = 2;
+            this.pointLabel.Text = "label1";
+            // 
             // GameScreen
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.PaleGoldenrod;
+            this.Controls.Add(this.pointLabel);
             this.Controls.Add(this.liveLabel);
             this.DoubleBuffered = true;
             this.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
@@ -70,5 +81,6 @@
 
         private System.Windows.Forms.Timer gameTimer;
         private System.Windows.Forms.Label liveLabel;
+        private System.Windows.Forms.Label pointLabel;
     }
 }

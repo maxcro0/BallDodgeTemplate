@@ -12,6 +12,7 @@ namespace BallDodgeTemplate
 
         public static int lives = 3;
         public static int points = 0;
+        public static int chaserCounter = 2;
 
         bool leftArrowDown, rightArrowDown, upArrowDown, downArrowDown;
 
@@ -41,14 +42,14 @@ namespace BallDodgeTemplate
             if (type == "enemy")
             {
                 Ball b = new Ball(x, y, 8, 8);
-                balls.Add(b); 
+                balls.Add(b);
             }
 
             if (type == "friend")
             {
                 Ball b = new Ball(x, y, 8, 8);
-                chaserBalls.Add(b); 
-   
+                chaserBalls.Add(b);
+
             }
         }
 
@@ -64,7 +65,7 @@ namespace BallDodgeTemplate
 
             for (int i = 0; i < 5; i++)
             {
-                CreateBall("Enemy");
+                CreateBall("enemy");
             }
         }
 
@@ -113,24 +114,48 @@ namespace BallDodgeTemplate
             {
                 gameTimer.Stop();
             }
+
+            if (chaserCounter >= 3)
+            {
+                CreateBall("friend");
+                chaserCounter = 0;
+            }
+            #region game enders
+            if (points == 5 && MenuScreen.difficulty == "easy")
+            {
+                gameTimer.Stop();
+            }
+
+            else if (points == 10 && MenuScreen.difficulty == "medium")
+            {
+                gameTimer.Stop();
+            }
+
+            else if (points == 15 && MenuScreen.difficulty == "hard")
+            {
+                gameTimer.Stop();
+            }
+            #endregion
             #region Move code
             foreach (Ball b in balls)
-            {
-                if (hero.Collision(chaseBall))
-                {
-                    lives++;
-                    points++;
-                }
-
+            {                 
                 if (hero.Collision(b))
                 {
                     lives--;
                 }
             }
+            
+            foreach (Ball b in chaserBalls)
+            {
+                if (hero.Collision(b))
+                {
+                    lives++;
+                    points++;
+                    chaserCounter++;
+                }
+            }
 
 
-
-            chaseBall.Move();
 
             if (rightArrowDown == true)
             {
@@ -157,10 +182,17 @@ namespace BallDodgeTemplate
                 b.Move();
             }
 
+            foreach (Ball b in chaserBalls)
+            {
+                b.Move();
+            }
+
             Refresh();
             #endregion
 
             Rectangle heroRec = new Rectangle(hero.x, hero.y, hero.width, hero.height);
+
+            
             Rectangle chaseRec = new Rectangle(chaseBall.x, chaseBall.y, chaseBall.size, chaseBall.size);
 
 
@@ -170,13 +202,18 @@ namespace BallDodgeTemplate
         {
 
             liveLabel.Text = $"Lives: {lives}";
-            //chaseball
-            e.Graphics.FillEllipse(greenBrush, chaseBall.x, chaseBall.y, chaseBall.size, chaseBall.size);
+            pointLabel.Text = $"Points: {points}";
 
             //balls to avoid
             foreach (Ball b in balls)
             {
                 e.Graphics.FillEllipse(redBrush, b.x, b.y, b.size, b.size);
+            }
+
+            //balls to hit
+            foreach (Ball b in chaserBalls)
+            {
+                e.Graphics.FillEllipse(greenBrush,b.x,b.y, b.size, b.size);
             }
 
             //hero
